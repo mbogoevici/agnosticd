@@ -37,6 +37,7 @@
     definition: "{{ item }}"
   with_items:
     - "{{ lookup('template', 'pipeline-s2i-imagestream.yaml.j2') }}"
+  when: use_openshift_build 
 
 - name: Create the pipeline build and app
   k8s:
@@ -48,6 +49,21 @@
     - "{{ lookup('template', 'pipeline-buildconfig.yaml.j2') }}"
     - "{{ lookup('template', 'pipeline-deploymentconfig.yaml.j2') }}"
     - "{{ lookup('template', 'pipeline-service.yaml.j2') }}"
+  when: use_openshift_build
+
+- name: Create OpenShift Pipeline
+  k8s:
+    state: present
+    namespace: "{{ project_name }}"
+    definition: "{{ item }}"
+  with_items:
+    - "{{ lookup('template', 'pipeline-resource-source.yaml.j2') }}"
+    - "{{ lookup('template', 'pipeline-resource-image.yaml.j2') }}"
+    - "{{ lookup('template', 'pipeline-task-definition.yaml.j2') }}"
+    - "{{ lookup('template', 'pipeline-definition.yaml.j2') }}"
+  when: use_openshift_pipelines
+  vars:
+    namespace: "{{ project_name}}"
 
 - name: Kick Jupyterhub
   shell: |

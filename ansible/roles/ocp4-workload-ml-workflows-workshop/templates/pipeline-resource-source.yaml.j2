@@ -1,0 +1,12 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: pipeline-source
+  namespace: opendatahub-user1
+spec:
+  params:
+    - name: url
+      value: {{ pipeline_notebook_repository }}
+    - name: revision
+      value: develop
+  type: git
